@@ -32,7 +32,7 @@ char *validate_path(char *command, char **env)
 			return (full_path);
 		i++;
 	}
-	exit(EXIT_FAILURE);
+	exit(127);
 }
 void leaks()
 {
@@ -48,7 +48,7 @@ void redirect_fds(char *file1)
 void excution(char *path, char **first_commands, char **env)
 {
 	if (execve(path, first_commands, env) == -1)
-		exit(EXIT_FAILURE);
+		exit(127);
 }
 void handdle_second_command()
 {
@@ -63,11 +63,11 @@ int main(int argc, char **argv, char **env)
 	int fd;
 
 	if (argc != 5)
-		exit(EXIT_FAILURE);
-	pid = fork();
+		exit(127);
 	pipe(fds);
+	pid = fork();
 	if (pid < 0)
-		exit(EXIT_FAILURE);
+		exit(127);
 	if (pid == 0)
 	{
 		fd = open(argv[1], O_RDONLY);
@@ -79,26 +79,25 @@ int main(int argc, char **argv, char **env)
 		first_commands = ft_split(argv[2], ' ');
 		path = validate_path(first_commands[0], env);
 		if (!first_commands || !path)
-			exit(EXIT_FAILURE);
+			exit(127);
 		excution(path, first_commands, env);
 	}
 	pid = fork();
 	if (pid < 0)
-		exit(EXIT_FAILURE);
+		exit(127);
 	if (pid == 0)
 	{
-		close(fds[1]);
-		fd = open(argv[4], O_RDWR | O_CREAT | O_TRUNC, 0666);
+		fd = open(argv[4], O_RDWR | O_CREAT , 0666);
 		dup2(fd, 1);
 		close(fd);
 		dup2(fds[0], 0);
+		close(fds[1]);
 		close(fds[0]);
 		seconds_commands = ft_split(argv[3], ' ');
 		path = validate_path(seconds_commands[0], env);
 		if (!seconds_commands || !path)
-			exit(EXIT_FAILURE);
+			exit(127);
 		excution(path, seconds_commands, env);
-		wait(NULL);
 	}
 	return (0);
 }
