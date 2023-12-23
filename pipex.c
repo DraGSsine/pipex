@@ -34,33 +34,53 @@ char *validate_path(char *command, char **env)
 	}
 	exit(127);
 }
-void leaks()
+
+void excution(char *path, char **commands, char **env)
 {
-	system("leaks a.out");
-}
-void redirect_fds(char *file1)
-{
-	int fd;
-	fd = open(file1, O_RDONLY);
-	dup2(fd, 0);
-	close(fd);
-}
-void excution(char *path, char **first_commands, char **env)
-{
-	if (execve(path, first_commands, env) == -1)
+	if (execve(path, commands, env) == -1)
 		exit(127);
 }
-void handdle_second_command()
+
+void second_command(char **argv, int fds[], char **env)
 {
+	int fd;
+	char **seconds_commands;
+	char *path;
+
+	fd = open(argv[4], O_RDWR | O_CREAT, 0666);
+	dup2(fd, 1);
+	close(fd);
+	dup2(fds[0], 0);
+	close(fds[1]);
+	close(fds[0]);
+	seconds_commands = ft_split(argv[3], ' ');
+	path = validate_path(seconds_commands[0], env);
+	if (!seconds_commands || !path)
+		exit(127);
+	excution(path, seconds_commands, env);
+}
+void first_command(char **argv, int fds[], char **env)
+{
+	int fd;
+	char **first_commands;
+	char *path;
+
+	fd = open(argv[1], O_RDWR | O_CREAT, 0666);
+	dup2(fd, 0);
+	close(fd);
+	dup2(fds[1], 1);
+	close(fds[1]);
+	close(fds[0]);
+	first_commands = ft_split(argv[2], ' ');
+	path = validate_path(first_commands[0], env);
+	if (!first_commands || !path)
+		exit(127);
+	excution(path, first_commands, env);
 }
 int main(int argc, char **argv, char **env)
 {
-	char **first_commands = NULL;
-	char **seconds_commands = NULL;
-	char *path;
 	int pid;
 	int fds[2];
-	int fd;
 
 	if (argc != 5)
 		exit(127);
@@ -69,35 +89,12 @@ int main(int argc, char **argv, char **env)
 	if (pid < 0)
 		exit(127);
 	if (pid == 0)
-	{
-		fd = open(argv[1], O_RDONLY);
-		dup2(fd, 0);
-		close(fd);
-		dup2(fds[1], 1);
-		close(fds[1]);
-		close(fds[0]);
-		first_commands = ft_split(argv[2], ' ');
-		path = validate_path(first_commands[0], env);
-		if (!first_commands || !path)
-			exit(127);
-		excution(path, first_commands, env);
-	}
+		first_command(argv, fds, env);
 	pid = fork();
 	if (pid < 0)
 		exit(127);
 	if (pid == 0)
-	{
-		fd = open(argv[4], O_RDWR | O_CREAT , 0666);
-		dup2(fd, 1);
-		close(fd);
-		dup2(fds[0], 0);
-		close(fds[1]);
-		close(fds[0]);
-		seconds_commands = ft_split(argv[3], ' ');
-		path = validate_path(seconds_commands[0], env);
-		if (!seconds_commands || !path)
-			exit(127);
-		excution(path, seconds_commands, env);
-	}
+		second_command(argv, fds, env);
+	wait(NULL);
 	return (0);
 }

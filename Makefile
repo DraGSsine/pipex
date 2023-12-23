@@ -1,8 +1,6 @@
 NAME = pipex
 
-OBJS = pipex.o pipex_utilitis.o
-
-SRCS = pipex.c pipex_utilitis.c
+OBJS = pipex.o pipex_utilitis.o ft_split.o
 
 CFLAGS = -Wall -Wextra -Werror
 
@@ -14,7 +12,7 @@ $(NAME): $(OBJS)
 	$(CC) $(OBJS) -o $(NAME)
 
 %.o: %.c pipex.h
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) -c $<
 
 clean:
 	rm -f $(OBJS)
