@@ -1,10 +1,10 @@
 NAME = pipex
 
-OBJS = pipex.o pipex_utilitis.o ft_split.o
+OBJS = pipex.o pipex_utilities.o ft_split.o
 
 CFLAGS = -Wall -Wextra -Werror
 
-CC = gcc
+CC = gcc -g
 
 all: $(NAME)
 
