@@ -110,7 +110,5 @@ int main(int argc, char **argv, char **env)
 		exit(127);
 	if (pid == 0)
 		second_command(argv, fds, env);
-	wait(NULL);
-	system("leaks pipex");
 	return (0);
 }
