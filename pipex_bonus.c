@@ -42,19 +42,6 @@ void excution(char *path, char **commands, char **env)
 		exit(EXIT_FAILURE);
 }
 
-char *format_awk(char *awk)
-{
-	int left = 0;
-	int right = ft_strlen(awk);
-
-	while (awk[left] != '\'')
-		left++;
-	while (awk[right] != '\'')
-		right--;
-	right = right - left;
-	return (ft_substr(awk, ++left, --right));
-}
-
 void second_command(int argc, char **argv, int fds[], char **env)
 {
 	int fd;
@@ -82,7 +69,16 @@ void first_command(char **argv, int fds[], char **env)
 	char **first_commands;
 	char *path;
 
-	fd = open(argv[1], O_RDWR | O_CREAT, 0666);
+	if (ft_strstr(argv[1], "here_doc"))
+	{
+		fd = open("tmp.txt", O_RDWR | O_CREAT, 0666);
+		first_commands = ft_split(argv[3], ' ');
+	}
+	else
+	{
+		fd = open(argv[1], O_RDWR | O_CREAT, 0666);
+		first_commands = ft_split(argv[2], ' ');
+	}
 	if (fd == -1)
 		printf("error opning file 1");
 	dup2(fd, 0);
@@ -90,7 +86,6 @@ void first_command(char **argv, int fds[], char **env)
 	dup2(fds[1], 1);
 	close(fds[1]);
 	close(fds[0]);
-	first_commands = ft_split(argv[2], ' ');
 	path = validate_path(first_commands[0], env);
 	if (!first_commands || !path)
 		exit(EXIT_FAILURE);
@@ -115,7 +110,7 @@ void middle_commnad(char *argv, int fds[], char **env, int fds2[])
 		exit(EXIT_FAILURE);
 	excution(path, first_commands, env);
 }
-void handdle_middle_commands(char **argv , int argc ,int fds2[] ,int fds[], char **env)
+void handdle_middle_commands(char **argv, int argc, int fds2[], int fds[], char **env)
 {
 	int i;
 	int pid;
@@ -133,18 +128,22 @@ void handdle_middle_commands(char **argv , int argc ,int fds2[] ,int fds[], char
 		i++;
 	}
 }
-// void handdle_here_doc()
-// {
-// 	char *line = NULL;
-// 	line = get_next_line(0);
-// 	while (line)
-// 	{
-// 		printf("hello world");
-// 		line = get_next_line(0);
-// 	}
-// 	printf("%s",line);
-// 	exit(89);
-// }
+
+void handdle_here_doc(char *limiter)
+{
+	int fd = open("tmp.txt", O_RDWR | O_APPEND | O_CREAT, 0666);
+	char *line = NULL;
+
+	line = get_next_line(0);
+	while (line)
+	{
+		if (ft_strstr(line, limiter))
+			break;
+		write(fd, line, ft_strlen(line));
+		line = get_next_line(0);
+	}
+}
+
 int main(int argc, char **argv, char **env)
 {
 	int pid;
@@ -159,9 +158,11 @@ int main(int argc, char **argv, char **env)
 	pid = fork();
 	if (pid < 0)
 		exit(EXIT_FAILURE);
+	if (ft_strstr(argv[1], "here_doc"))
+		handdle_here_doc(argv[2]);
 	if (pid == 0)
-			first_command(argv, fds, env);
-	handdle_middle_commands(argv,argc,fds2,fds,env);
+		first_command(argv, fds, env);
+	handdle_middle_commands(argv, argc, fds2, fds, env);
 	pid = fork();
 	if (pid < 0)
 		exit(EXIT_FAILURE);
