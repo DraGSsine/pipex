@@ -1,7 +1,7 @@
 NAME = pipex
 
 OBJS = pipex.o pipex_utilities.o ft_split.o
-OBJS_BONUS = pipex_bonus.o pipex_bonus_utilities.o ft_split.o
+OBJS_BONUS = pipex_bonus.o pipex_bonus_utilities.o ft_split.o get_next_line.o get_next_line_utilities.o
 
 CFLAGS = -Wall -Wextra -Werror
 

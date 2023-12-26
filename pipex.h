@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include "get_next_line.h"
 
 char    **ft_split(const char *s, char c);
 char    *ft_strjoin(char const *s1, char const *s2);

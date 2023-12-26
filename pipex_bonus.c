@@ -133,6 +133,18 @@ void handdle_middle_commands(char **argv , int argc ,int fds2[] ,int fds[], char
 		i++;
 	}
 }
+// void handdle_here_doc()
+// {
+// 	char *line = NULL;
+// 	line = get_next_line(0);
+// 	while (line)
+// 	{
+// 		printf("hello world");
+// 		line = get_next_line(0);
+// 	}
+// 	printf("%s",line);
+// 	exit(89);
+// }
 int main(int argc, char **argv, char **env)
 {
 	int pid;
@@ -148,10 +160,8 @@ int main(int argc, char **argv, char **env)
 	if (pid < 0)
 		exit(EXIT_FAILURE);
 	if (pid == 0)
-		first_command(argv, fds, env);
-
+			first_command(argv, fds, env);
 	handdle_middle_commands(argv,argc,fds2,fds,env);
-
 	pid = fork();
 	if (pid < 0)
 		exit(EXIT_FAILURE);
