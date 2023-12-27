@@ -1,4 +1,17 @@
-#include "get_next_line.h"
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   read_line.c                                    :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: youchen <youchen@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2023/12/26 22:16:35 by youchen           #+#    #+#             */
+/*   Updated: 2023/12/26 22:17:01 by youchen          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "read_line.h"
+
 char	*get_lerl_string(char *str)
 {
 	int	i;
@@ -18,7 +31,7 @@ char	*get_the_line(char *str)
 		i++;
 	return (rl_substr(str, 0, ++i));
 }
-#include <stdio.h>
+
 char	*read_and_process_buffer(int fd, char *lerl)
 {
 	char	*buffer;
@@ -48,7 +61,7 @@ char	*read_and_process_buffer(int fd, char *lerl)
 	return (lerl);
 }
 
-char	*get_next_line(int fd)
+char	*read_line(int fd)
 {
 	static char	*lerl;
 	char		*line;

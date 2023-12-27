@@ -1,11 +1,10 @@
 NAME = pipex
 
-OBJS = pipex.o pipex_utilities.o ft_split.o
-OBJS_BONUS = pipex_bonus.o pipex_bonus_utilities.o ft_split.o get_next_line.o get_next_line_utilities.o
+OBJS = pipex.o utilities.o ft_split.o
+OBJS_BONUS = utilities.o pipex_bonus.o pipex_bonus_utilities.o ft_split.o read_line.o read_line_utilities.o
 
-CFLAGS = -Wall -Wextra -Werror
-
-CC = gcc -g
+CFLAGS = -Wall -Wextra -Werror 
+CC = cc
 
 all: $(NAME)
 

@@ -1,8 +1,20 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   pipex.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: youchen <youchen@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2023/12/26 22:29:53 by youchen           #+#    #+#             */
+/*   Updated: 2023/12/27 12:31:52 by youchen          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "pipex.h"
 
-char **get_env_paths(char **env)
+char	**get_env_paths(char **env)
 {
-	int i;
+	int	i;
 
 	i = 0;
 	while (env[i])
@@ -15,12 +27,13 @@ char **get_env_paths(char **env)
 	}
 	return (NULL);
 }
-char *validate_path(char *command, char **env)
+
+char	*validate_path(char *command, char **env)
 {
-	int i;
-	char *cm;
-	char *full_path;
-	char **paths;
+	int		i;
+	char	*cm;
+	char	*full_path;
+	char	**paths;
 
 	paths = get_env_paths(env);
 	i = 0;
@@ -32,73 +45,57 @@ char *validate_path(char *command, char **env)
 			return (full_path);
 		i++;
 	}
-	perror("Error opening file");
+	perror("Error command not found");
 	exit(EXIT_FAILURE);
 }
 
-void excution(char *path, char **commands, char **env)
+void	second_command(char **argv, int fds[], char **env)
 {
-	if (execve(path, commands, env) == -1)
-		exit(127);
-}
-
-char *format_awk(char *awk)
-{
-	int left = 0;
-	int right = ft_strlen(awk);
-
-	while (awk[left] != '\'')
-		left++;
-	while (awk[right] != '\'')
-		right--;
-	right = right - left;
-	return (ft_substr(awk, ++left, --right));
-}
-
-void second_command(char **argv, int fds[], char **env)
-{
-	int fd;
-	char **second_commands;
-	char *path;
+	int		fd;
+	char	**second_commands;
+	char	*path;
 
 	fd = open(argv[4], O_RDWR | O_CREAT, 0666);
+	second_commands = ft_split(argv[3], ' ');
+	path = validate_path(second_commands[0], env);
+	if (!second_commands || !path || fd == -1)
+		exit(17);
 	dup2(fd, 1);
 	close(fd);
 	dup2(fds[0], 0);
 	close(fds[1]);
 	close(fds[0]);
-	second_commands = ft_split(argv[3], ' ');
-	path = validate_path(second_commands[0], env);
-	if (!second_commands || !path)
-		exit(17);
-	excution(path, second_commands, env);
+	if (execve(path, second_commands, env) == -1)
+		exit(127);
 }
 
-void first_command(char **argv, int fds[], char **env)
+void	first_command(char **argv, int fds[], char **env)
 {
-	int fd;
-	char **first_commands;
-	char *path;
+	int		fd;
+	char	**first_commands;
+	char	*path;
 
-	fd = open(argv[1], O_RDWR | O_CREAT, 0666);
+	fd = open(argv[1], O_RDWR);
+	first_commands = ft_split(argv[2], ' ');
+	path = validate_path(first_commands[0], env);
+	if (!first_commands || !path || fd == -1)
+		exit(127);
 	dup2(fd, 0);
 	close(fd);
 	dup2(fds[1], 1);
 	close(fds[1]);
 	close(fds[0]);
-	first_commands = ft_split(argv[2], ' ');
-	path = validate_path(first_commands[0], env);
-	if (!first_commands || !path)
+	if (execve(path, first_commands, env) == -1)
 		exit(127);
-	excution(path, first_commands, env);
 }
-int main(int argc, char **argv, char **env)
+
+int	main(int argc, char **argv, char **env)
 {
-	int pid;
-	int fds[2];
+	int	pid;
+	int	fds[2];
 
 	if (argc != 5)
-		exit(127);
+		exit(EXIT_FAILURE);
 	pipe(fds);
 	pid = fork();
 	if (pid < 0)
@@ -110,5 +107,9 @@ int main(int argc, char **argv, char **env)
 		exit(127);
 	if (pid == 0)
 		second_command(argv, fds, env);
+	close(fds[0]);
+	close(fds[1]);
+	while (wait(NULL) != -1)
+		;
 	return (0);
 }
