@@ -3,7 +3,7 @@ NAME = pipex
 OBJS = pipex.o utilities.o ft_split.o
 OBJS_BONUS = utilities.o pipex_bonus.o pipex_bonus_utilities.o ft_split.o read_line.o read_line_utilities.o
 
-CFLAGS = -Wall -Wextra -Werror 
+CFLAGS = -Wall -Wextra -Werror
 CC = cc
 
 all: $(NAME)

@@ -6,7 +6,7 @@
 /*   By: youchen <youchen@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/26 22:29:53 by youchen           #+#    #+#             */
-/*   Updated: 2023/12/27 12:31:52 by youchen          ###   ########.fr       */
+/*   Updated: 2023/12/27 22:31:12 by youchen          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,8 @@ char	*validate_path(char *command, char **env)
 	char	*full_path;
 	char	**paths;
 
+	if(access(command,X_OK) != -1)
+		return (command);
 	paths = get_env_paths(env);
 	i = 0;
 	cm = ft_strjoin("/", command);
@@ -48,7 +50,10 @@ char	*validate_path(char *command, char **env)
 	perror("Error command not found");
 	exit(EXIT_FAILURE);
 }
-
+char **parse_awk_command(char *input)
+{
+	
+}
 void	second_command(char **argv, int fds[], char **env)
 {
 	int		fd;
@@ -59,14 +64,14 @@ void	second_command(char **argv, int fds[], char **env)
 	second_commands = ft_split(argv[3], ' ');
 	path = validate_path(second_commands[0], env);
 	if (!second_commands || !path || fd == -1)
-		exit(17);
+		exit(EXIT_FAILURE);
 	dup2(fd, 1);
 	close(fd);
 	dup2(fds[0], 0);
 	close(fds[1]);
 	close(fds[0]);
 	if (execve(path, second_commands, env) == -1)
-		exit(127);
+		exit(EXIT_FAILURE);
 }
 
 void	first_command(char **argv, int fds[], char **env)
@@ -79,14 +84,14 @@ void	first_command(char **argv, int fds[], char **env)
 	first_commands = ft_split(argv[2], ' ');
 	path = validate_path(first_commands[0], env);
 	if (!first_commands || !path || fd == -1)
-		exit(127);
+		exit(EXIT_FAILURE);
 	dup2(fd, 0);
 	close(fd);
 	dup2(fds[1], 1);
 	close(fds[1]);
 	close(fds[0]);
 	if (execve(path, first_commands, env) == -1)
-		exit(127);
+		exit(EXIT_FAILURE);
 }
 
 int	main(int argc, char **argv, char **env)
@@ -99,12 +104,12 @@ int	main(int argc, char **argv, char **env)
 	pipe(fds);
 	pid = fork();
 	if (pid < 0)
-		exit(127);
+		exit(EXIT_FAILURE);
 	if (pid == 0)
 		first_command(argv, fds, env);
 	pid = fork();
 	if (pid < 0)
-		exit(127);
+		exit(EXIT_FAILURE);
 	if (pid == 0)
 		second_command(argv, fds, env);
 	close(fds[0]);
@@ -113,3 +118,4 @@ int	main(int argc, char **argv, char **env)
 		;
 	return (0);
 }
+

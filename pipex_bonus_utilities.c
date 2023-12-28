@@ -6,7 +6,7 @@
 /*   By: youchen <youchen@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/26 22:18:53 by youchen           #+#    #+#             */
-/*   Updated: 2023/12/27 10:09:30 by youchen          ###   ########.fr       */
+/*   Updated: 2023/12/27 19:13:48 by youchen          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,8 @@ char	*validate_path(char *command, char **env)
 	char	*full_path;
 	char	**paths;
 
+	if(access(command,X_OK) != -1)
+		return (command);
 	paths = get_env_paths(env);
 	i = 0;
 	cm = ft_strjoin("/", command);
@@ -45,7 +47,7 @@ char	*validate_path(char *command, char **env)
 			return (full_path);
 		i++;
 	}
-	perror("comand not found");
+	perror("Error command not found");
 	exit(EXIT_FAILURE);
 }
 
@@ -84,7 +86,9 @@ void	handdle_here_doc(char *limiter)
 		if (ft_strstr(line, limiter))
 			break ;
 		write(fd, line, ft_strlen(line));
+		free(line);
 		line = read_line(0);
 	}
+	free(line);
 	close(fd);
 }

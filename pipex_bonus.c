@@ -6,7 +6,7 @@
 /*   By: youchen <youchen@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/26 22:27:50 by youchen           #+#    #+#             */
-/*   Updated: 2023/12/27 12:32:54 by youchen          ###   ########.fr       */
+/*   Updated: 2023/12/27 22:37:53 by youchen          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,10 +54,11 @@ void	first_command(char **argv, int fds[], char **env)
 	dup2(fd, 0);
 	close(fd);
 	dup2(fds[1], 1);
-	close(fds[1]);
 	close(fds[0]);
+	close(fds[1]);
 	if (execve(path, first_commands, env) == -1)
 		exit(EXIT_FAILURE);
+
 }
 
 void	middle_commnad(char *argv, int fds[], char **env, int fds2[])
@@ -79,14 +80,24 @@ void	middle_commnad(char *argv, int fds[], char **env, int fds2[])
 		exit(EXIT_FAILURE);
 }
 
-int	main(int argc, char **argv, char **env)
+int	ft_fork(void)
 {
 	int	pid;
+
+	pid = fork();
+	if (pid < 0)
+		exit(EXIT_FAILURE);
+	return (pid);
+}
+
+
+int	main(int argc, char **argv, char **env)
+{
 	int	fds[2];
 	int	fds2[2];
 	int	i;
 
-	if (access("tmp.txt", W_OK | R_OK) == 0)
+	if (access("tmp.txt", 6) == 0)
 		unlink("tmp.txt");
 	i = 2;
 	if (argc < 5)
@@ -94,17 +105,14 @@ int	main(int argc, char **argv, char **env)
 	pipe(fds);
 	if (ft_strstr(argv[1], "here_doc"))
 		handdle_here_doc(argv[2]);
-	pid = fork();
-	if (pid < 0)
-		exit(EXIT_FAILURE);
-	if (pid == 0)
+	if (ft_fork() == 0)
 		first_command(argv, fds, env);
 	handdle_middle_commands(argv, fds2, fds, env);
-	pid = fork();
-	if (pid < 0)
-		exit(EXIT_FAILURE);
-	if (pid == 0)
-		second_command(argc, argv, fds, env);
+	second_command(argc, argv, fds, env);
+	close(fds[0]);
+	close(fds[1]);
+	close(fds2[0]);
+	close(fds2[1]);
 	while (wait(NULL) != -1)
 		;
 	return (0);
