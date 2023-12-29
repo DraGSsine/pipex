@@ -80,7 +80,7 @@ void	handdle_here_doc(char *limiter)
 	int		fd;
 	char	*line;
 
-	fd = open("tmp.txt", O_RDWR | O_APPEND | O_CREAT);
+	fd = open("tmp.txt", O_RDWR | O_APPEND | O_CREAT, 0666);
 	if (fd == -1)
 		exit(EXIT_FAILURE);
 	line = read_line(0);

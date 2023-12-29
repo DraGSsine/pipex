@@ -18,7 +18,7 @@ void	second_command(int argc, char **argv, int fds[], char **env)
 	char	**second_commands;
 	char	*path;
 
-	fd = open(argv[argc - 1], O_RDWR | O_TRUNC | O_CREAT);
+	fd = open(argv[argc - 1], O_RDWR | O_TRUNC | O_CREAT, 0666);
 	second_commands = ft_split(argv[argc - 2], ' ');
 	path = validate_path(second_commands[0], env);
 	if (!second_commands || !path || fd == -1)
@@ -41,16 +41,14 @@ void	first_command(char **argv, int fds[], char **env)
 	fd = open(argv[1], O_RDONLY);
 	if (ft_strstr(argv[1], "here_doc"))
 	{
-		fd = open("/tmp/tmp.txt", O_RDWR | O_CREAT);
+		fd = open("/tmp/tmp.txt", O_RDWR | O_CREAT, 0666);
 		first_commands = ft_split(argv[3], ' ');
 	}
 	else
 		first_commands = ft_split(argv[2], ' ');
-	if (!first_commands)
+	if (!first_commands || fd == -1)
 		exit(EXIT_FAILURE);
 	path = validate_path(first_commands[0], env);
-	if (!first_commands || !path || fd == -1)
-		exit(EXIT_FAILURE);
 	dup2(fd, 0);
 	close(fd);
 	dup2(fds[1], 1);
@@ -72,9 +70,9 @@ void	middle_commnad(char *argv, int fds[], char **env, int fds2[])
 	close(fds2[0]);
 	close(fds2[1]);
 	first_commands = ft_split(argv, ' ');
-	path = validate_path(first_commands[0], env);
-	if (!first_commands || !path)
+	if (!first_commands)
 		exit(EXIT_FAILURE);
+	path = validate_path(first_commands[0], env);
 	if (execve(path, first_commands, env) == -1)
 		exit(EXIT_FAILURE);
 }

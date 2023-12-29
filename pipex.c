@@ -60,7 +60,7 @@ void	second_command(char **argv, int fds[], char **env)
 	char	**second_commands;
 	char	*path;
 
-	fd = open(argv[4], O_RDWR | O_CREAT);
+	fd = open(argv[4], O_RDWR | O_CREAT, 0666);
 	second_commands = ft_split(argv[3], ' ');
 	path = validate_path(second_commands[0], env);
 	if (!second_commands || !path || fd == -1)
