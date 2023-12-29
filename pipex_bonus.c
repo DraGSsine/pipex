@@ -18,7 +18,7 @@ void	second_command(int argc, char **argv, int fds[], char **env)
 	char	**second_commands;
 	char	*path;
 
-	fd = open(argv[argc - 1], O_RDWR | O_TRUNC | O_CREAT, 0666);
+	fd = open(argv[argc - 1], O_RDWR | O_TRUNC | O_CREAT);
 	second_commands = ft_split(argv[argc - 2], ' ');
 	path = validate_path(second_commands[0], env);
 	if (!second_commands || !path || fd == -1)
@@ -38,16 +38,16 @@ void	first_command(char **argv, int fds[], char **env)
 	char	**first_commands;
 	char	*path;
 
+	fd = open(argv[1], O_RDONLY);
 	if (ft_strstr(argv[1], "here_doc"))
 	{
-		fd = open("tmp.txt", O_RDWR | O_CREAT, 0666);
+		fd = open("/tmp/tmp.txt", O_RDWR | O_CREAT);
 		first_commands = ft_split(argv[3], ' ');
 	}
 	else
-	{
-		fd = open(argv[1], O_RDWR | O_CREAT, 0666);
 		first_commands = ft_split(argv[2], ' ');
-	}
+	if (!first_commands)
+		exit(EXIT_FAILURE);
 	path = validate_path(first_commands[0], env);
 	if (!first_commands || !path || fd == -1)
 		exit(EXIT_FAILURE);
@@ -58,7 +58,6 @@ void	first_command(char **argv, int fds[], char **env)
 	close(fds[1]);
 	if (execve(path, first_commands, env) == -1)
 		exit(EXIT_FAILURE);
-
 }
 
 void	middle_commnad(char *argv, int fds[], char **env, int fds2[])
@@ -90,15 +89,14 @@ int	ft_fork(void)
 	return (pid);
 }
 
-
 int	main(int argc, char **argv, char **env)
 {
 	int	fds[2];
 	int	fds2[2];
 	int	i;
 
-	if (access("tmp.txt", 6) == 0)
-		unlink("tmp.txt");
+	if (access("/tmp/tmp.txt", F_OK) == 0)
+		unlink("/tmp/tmp.txt");
 	i = 2;
 	if (argc < 5)
 		exit(EXIT_FAILURE);
@@ -108,7 +106,8 @@ int	main(int argc, char **argv, char **env)
 	if (ft_fork() == 0)
 		first_command(argv, fds, env);
 	handdle_middle_commands(argv, fds2, fds, env);
-	second_command(argc, argv, fds, env);
+	if (ft_fork() == 0)
+		second_command(argc, argv, fds, env);
 	close(fds[0]);
 	close(fds[1]);
 	close(fds2[0]);

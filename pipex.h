@@ -23,7 +23,7 @@ char	**ft_split(const char *s, char c);
 char	*ft_strjoin(char const *s1, char const *s2);
 size_t	ft_strlen(const char *str);
 int		ft_strstr(char *str, char *to_find);
-char	*ft_substr(char *s, size_t start, size_t len);
+void	ft_free(char **str);
 void	handdle_middle_commands(char **argv, int fds2[], int fds[], char **env);
 void	handdle_here_doc(char *limiter);
 char	**get_env_paths(char **env);

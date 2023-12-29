@@ -74,31 +74,14 @@ char	*ft_strjoin(char const *s1, char const *s2)
 	return (ptr_str);
 }
 
-char	*ft_substr(char *s, size_t start, size_t len)
+void	ft_free(char **str)
 {
-	size_t	s_len;
-	char	*ptr_str;
-	size_t	i;
+	int	i;
 
 	i = 0;
-	if (!s)
-		return (NULL);
-	s_len = ft_strlen(s);
-	if (start >= s_len || len == 0)
-	{
-		ptr_str = malloc(1);
-		ptr_str[0] = '\0';
-		return (ptr_str);
-	}
-	if (start + len > s_len)
-		len = s_len - start;
-	ptr_str = malloc(len + 1);
-	if (ptr_str == NULL)
-		return (NULL);
-	while (i < len)
-		ptr_str[i++] = s[start++];
-	ptr_str[len] = '\0';
-	return (ptr_str);
+	while (str[i])
+		free(str[i++]);
+	free(str[i]);
 }
 
 size_t	count_args(char **str)

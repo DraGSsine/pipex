@@ -35,7 +35,7 @@ char	*validate_path(char *command, char **env)
 	char	*full_path;
 	char	**paths;
 
-	if(access(command,X_OK) != -1)
+	if (access(command, X_OK) != -1)
 		return (command);
 	paths = get_env_paths(env);
 	i = 0;
@@ -44,9 +44,12 @@ char	*validate_path(char *command, char **env)
 	{
 		full_path = ft_strjoin(paths[i], cm);
 		if (access(full_path, X_OK) != -1)
-			return (full_path);
+			return (ft_free(paths), free(cm), full_path);
+		free(full_path);
 		i++;
 	}
+	ft_free(paths);
+	free(cm);
 	perror("Error command not found");
 	exit(EXIT_FAILURE);
 }
@@ -77,7 +80,7 @@ void	handdle_here_doc(char *limiter)
 	int		fd;
 	char	*line;
 
-	fd = open("tmp.txt", O_RDWR | O_APPEND | O_CREAT, 0666);
+	fd = open("tmp.txt", O_RDWR | O_APPEND | O_CREAT);
 	if (fd == -1)
 		exit(EXIT_FAILURE);
 	line = read_line(0);

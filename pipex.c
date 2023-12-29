@@ -35,7 +35,7 @@ char	*validate_path(char *command, char **env)
 	char	*full_path;
 	char	**paths;
 
-	if(access(command,X_OK) != -1)
+	if (access(command, X_OK) != -1)
 		return (command);
 	paths = get_env_paths(env);
 	i = 0;
@@ -44,23 +44,23 @@ char	*validate_path(char *command, char **env)
 	{
 		full_path = ft_strjoin(paths[i], cm);
 		if (access(full_path, X_OK) != -1)
-			return (full_path);
+			return (ft_free(paths), free(cm), full_path);
+		free(full_path);
 		i++;
 	}
+	ft_free(paths);
+	free(cm);
 	perror("Error command not found");
 	exit(EXIT_FAILURE);
 }
-char **parse_awk_command(char *input)
-{
-	
-}
+
 void	second_command(char **argv, int fds[], char **env)
 {
 	int		fd;
 	char	**second_commands;
 	char	*path;
 
-	fd = open(argv[4], O_RDWR | O_CREAT, 0666);
+	fd = open(argv[4], O_RDWR | O_CREAT);
 	second_commands = ft_split(argv[3], ' ');
 	path = validate_path(second_commands[0], env);
 	if (!second_commands || !path || fd == -1)
@@ -82,8 +82,10 @@ void	first_command(char **argv, int fds[], char **env)
 
 	fd = open(argv[1], O_RDWR);
 	first_commands = ft_split(argv[2], ' ');
+	if (!first_commands)
+		exit(EXIT_FAILURE);
 	path = validate_path(first_commands[0], env);
-	if (!first_commands || !path || fd == -1)
+	if (!path || fd == -1)
 		exit(EXIT_FAILURE);
 	dup2(fd, 0);
 	close(fd);
@@ -118,4 +120,3 @@ int	main(int argc, char **argv, char **env)
 		;
 	return (0);
 }
-
